@@ -1,7 +1,7 @@
 import dbConnect from '../../../lib/dbConnect';
 import User from '../../../models/users';
 import ResetToken from '../../../models/ResetToken';
-import { sendResetEmail } from '../../../lib/nodemailpass';
+import { sendResetEmail } from '../../../lib/nodemailer';
 import crypto from "crypto";
 
 export default async function handler(req, res) {
@@ -21,17 +21,17 @@ export default async function handler(req, res) {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
- 
+
     const token = crypto.randomBytes(32).toString("hex");
 
- 
+
     await ResetToken.create({
       email,
       token,
-      expiresAt: Date.now() + 60 * 60 * 1000,  
+      expiresAt: Date.now() + 60 * 60 * 1000,
     });
 
- 
+
     const resetUrl = `${process.env.BASE_URL}/reset-password?token=${token}&email=${email}`;
     await sendResetEmail(email, resetUrl);
 
