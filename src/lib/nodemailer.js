@@ -1,0 +1,53 @@
+import nodemailer from "nodemailer";
+
+export const sendOTPEmail = async (email, otp) => {
+  const transporter = nodemailer.createTransport({
+      host: process.env.MAIL_HOST,
+      port: 587,
+      secure: false, 
+    auth: {
+      user: process.env.MAIL_AUTH,
+      pass: process.env.MAIL_PASS,
+    },
+  });
+
+  await transporter.sendMail({
+    from: ' "CorpTube " <Info@CorpTube.com>',
+    to: email,
+   subject: "Email Verification - CorpTube",
+
+html: `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; background-color: #f9fafb;">
+    <div style="text-align: center; padding-bottom: 15px; border-bottom: 1px solid #e5e7eb;">
+      <h2 style="color: #2563eb; margin: 0;">CorpTube</h2>
+      <p style="color: #6b7280; font-size: 14px; margin: 0;">Your trusted partner for innovation</p>
+    </div>
+    
+    <div style="padding: 20px 0;">
+      <h3 style="color: #111827;">Dear User,</h3>
+      <p style="color: #374151; font-size: 15px; line-height: 1.6;">
+        Thank you for signing up with <strong>CorpTube</strong>!  
+        To ensure the security of your account and complete the registration process, please verify your email address by entering the following One-Time Password (OTP):
+      </p>
+      <div style="text-align: center; margin: 25px 0;">
+        <span style="display: inline-block; background-color: #2563eb; color: white; font-size: 20px; font-weight: bold; padding: 10px 20px; border-radius: 6px; letter-spacing: 2px;">
+          ${otp}
+        </span>
+      </div>
+      <p style="color: #374151; font-size: 15px; line-height: 1.6;">
+        This OTP is valid for the next <strong>10 minutes</strong>. Please do not share it with anyone for security reasons.
+      </p>
+      <p style="color: #374151; font-size: 15px; line-height: 1.6;">
+        If you did not request this verification, please ignore this email or contact our support team immediately.
+      </p>
+    </div>
+    
+    <div style="padding-top: 15px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 13px; color: #6b7280;">
+      <p style="margin: 0;">© ${new Date().getFullYear()}CorpTube. All rights reserved.</p>
+      <p style="margin: 0;">This is an automated email, please do not reply.</p>
+    </div>
+  </div>
+`
+
+  });
+};
