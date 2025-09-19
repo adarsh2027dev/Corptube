@@ -91,7 +91,7 @@ export default async function handler(req, res) {
         finalUserId = tempId;
       }
 
-      
+
 // Hash password before saving
 const hashedPassword = await bcrypt.hash(password, 10);
 

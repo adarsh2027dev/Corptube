@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     await ResetToken.create({
       email,
       token,
-      expiresAt: Date.now() + 60 * 60 * 1000,
+      expiresAt: Date.now() + 24*60 * 60 * 1000,
     });
 
 
