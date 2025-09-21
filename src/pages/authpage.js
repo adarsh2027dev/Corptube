@@ -165,130 +165,151 @@ console.log(loginData)
 >
   <h2 className="text-white font-extrabold text-3xl sm:text-4xl text-center">Login</h2>
 
- <form onSubmit={handleLoginSubmit} className="mt-8 space-y-6">
-       {/* Error Message */}
-       {error && (
-         <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
-           {error}
-         </div>
-       )}
+<form onSubmit={handleLoginSubmit} className="mt-8 space-y-6">
+  {/* Error Message */}
+  {error && (
+    <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
+      {error}
+    </div>
+  )}
 
-       {/* userid */}
-       <div className="w-full">
-         <label className="block text-white text-md font-bold mb-2">
-           User ID
-         </label>
-         <div className="flex items-center border-b-2 border-white/40 px-3 py-2 focus-within:border-[#8e4eed] transition">
-           <input
-             type="text"
-             required
-             value={loginData.userId}
-             onChange={(e) => setLoginData({...loginData, userId: e.target.value})}
-             placeholder="Enter your User ID"
-             className="flex-1 bg-black outline-none text-white text-base"
-           />
-           <Image
-             src="/assets/usernam_icon.png"
-             alt="userid"
-             className="w-[22px] h-[22px] ml-2 opacity-80"
-           />
-         </div>
-       </div>
+  {/* userid */}
+  <div className="w-full">
+    <label className="block text-white text-md font-bold mb-2">
+      User ID
+    </label>
+    <div className="flex items-center border-b-2 border-white/40 px-3 py-2 focus-within:border-[#8e4eed] transition">
+      <input
+        type="text"
+        required
+        value={loginData.userId}
+        onChange={(e) =>
+          setLoginData({ ...loginData, userId: e.target.value })
+        }
+        placeholder="Enter your User ID"
+        className="flex-1 bg-black outline-none text-white text-base"
+      />
+      <Image
+        src="/assets/usernam_icon.png"
+        alt="userid"
+        width={24}
+        height={24}
+        className="ml-2 opacity-80"
+      />
+    </div>
+  </div>
 
-       {/* password */}
-       <div className="w-full">
-         <label className="block text-white text-md font-bold mb-2">
-           Password
-         </label>
-         <div className="flex items-center border-b-2 border-white/40 px-3 py-2 focus-within:border-[#8e4eed] transition">
-           <input
-             type={showPassword ? "text" : "password"}
-             required
-             value={loginData.password}
-             onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-             placeholder="Enter your password"
-             className="flex-1 bg-black font-sans outline-none text-white placeholder-gray-400 text-base"
-           />
-           <button
-             type="button"
-             onClick={() => setShowPassword(!showPassword)}
-             className="ml-2 focus:outline-none"
-           >
-             {showPassword ? (
-               <Image
-                 src="/assets/lock_icon.png"
-                 alt="show"
-                 className="w-[22px] h-[22px] opacity-80"
-               />
-             ) : (
-               <Image
-                 src="/assets/lock_icon.png"
-                 alt="hide"
-                 className="w-[22px] h-[22px] opacity-80"
-               />
-             )}
-           </button>
-         </div>
-       </div>
+  {/* password */}
+  <div className="w-full">
+    <label className="block text-white text-md font-bold mb-2">
+      Password
+    </label>
+    <div className="flex items-center border-b-2 border-white/40 px-3 py-2 focus-within:border-[#8e4eed] transition">
+      <input
+        type={showPassword ? "text" : "password"}
+        required
+        value={loginData.password}
+        onChange={(e) =>
+          setLoginData({ ...loginData, password: e.target.value })
+        }
+        placeholder="Enter your password"
+        className="flex-1 bg-black font-sans outline-none text-white placeholder-gray-400 text-base"
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="ml-2 focus:outline-none"
+      >
+        {showPassword ? (
+          <Image
+            src="/assets/lock_icon.png"
+            alt="show"
+            width={22}
+            height={22}
+            className="opacity-80"
+          />
+        ) : (
+          <Image
+            src="/assets/lock_icon.png"
+            alt="hide"
+            width={22}
+            height={22}
+            className="opacity-80"
+          />
+        )}
+      </button>
+    </div>
+  </div>
 
-       {/* button */}
-       <div>
-         <button
-           type="submit"
-           disabled={isLoading}
-           className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden z-10 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-         >
-           <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683] z-[-1] transition-all duration-500 hover:top-0"></span>
-           {isLoading ? 'Logging in...' : 'Login'}
-         </button>
-       </div>
+  {/* button */}
+  <div>
+    <button
+      type="submit"
+      disabled={isLoading}
+      className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden z-10 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683] z-[-1] transition-all duration-500 hover:top-0"></span>
+      {isLoading ? "Logging in..." : "Login"}
+    </button>
+  </div>
 
-      {/* links */}
-      <div className="text-sm flex flex-col items-center text-center space-y-2">
-        <p>
-          <button
-            type="button"
-            onClick={() => setActiveForm("forget")}
-            className="text-[#AA7EF5] font-semibold hover:underline"
-          >
-            Forgot Password?
-          </button>
-        </p>
-        <p className="text-white gap-2">
-          Do not have an account?{" "}
-          <button
-            type="button"
-            onClick={() => setActiveForm("register")}
-            className="text-[#AA7EF5] font-semibold hover:underline"
-          >
-            Sign Up
-          </button>
-        </p>
-      </div>
-    </form>
+  {/* links */}
+  <div className="text-sm flex flex-col items-center text-center space-y-2">
+    <p>
+      <button
+        type="button"
+        onClick={() => setActiveForm("forget")}
+        className="text-[#AA7EF5] font-semibold hover:underline"
+      >
+        Forgot Password?
+      </button>
+    </p>
+    <p className="text-white gap-2">
+      Do not have an account?{" "}
+      <button
+        type="button"
+        onClick={() => setActiveForm("register")}
+        className="text-[#AA7EF5] font-semibold hover:underline"
+      >
+        Sign Up
+      </button>
+    </p>
+  </div>
+</form> 
 </div>
 
 {/* login + other info section */}
 <div
   className={`absolute font-sans h-full hidden md:flex flex-col justify-center
-  ${activeForm === "login" ? "right-0 text-right pr-10 lg:pr-[65px] pl-10 lg:pl-[150px]" : "right-0 text-left pl-10 lg:pl-[65px] pr-10 lg:pr-[150px]"}
+  ${activeForm === "login" ? "right-0 text-right pr-10 lg:pr-[65px] pl-10 lg:pl-[150px]" : "right-0 text-right pr-10 lg:pr-[65px] pl-10 lg:pl-[150px]"}
   pb-[150px] lg:pb-[300px]
   `}
 >
   <h2 className="uppercase text-3xl lg:text-[50px] leading-tight text-white font-bold flex items-center gap-2">
   {activeForm === "login" ? (
     <>
-      WELCOME <br /> Back
+      WELCOME  Back
+        
+        <Image
+          src="/assets/corptube_logo-bgRemoved.png"
+          alt="logo"
+          width={40}
+          height={40}
+          className="  opacity-80"
+        />
     </>
   ) : (
     <>
       WELCOME <br /> 
       <span className="flex items-center gap-2">
         Back
+        <br></br>
         <Image
           src="/assets/corptube_logo-bgRemoved.png"
           alt="logo"
-          className="w-10 h-10 inline-block opacity-80"
+          width={40}
+          height={40}
+          className=" inline-block opacity-80"
         />
       </span>
     </>
@@ -321,163 +342,204 @@ console.log(loginData)
     Sign Up
   </h2>
 
-   <form onSubmit={handleRegisterSubmit} className="mt- space-y-0">
-     {/* Error Message */}
-     {error && (
-       <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
-         {error}
-       </div>
-     )}
-     {/* Full Name */}
-     <div className="relative">
-       <label className="block text-white text-lg font-medium mb-2">
-         Full Name
-       </label>
-       <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
-         <input
-           type="text"
-           required
-           value={registerData.fullName}
-           onChange={(e) => setRegisterData({...registerData, fullName: e.target.value})}
-           className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
-         />
-         <Image
-           src="/assets/usernam_icon.png"
-           alt="fullname"
-           className="w-6 h-6 ml-2 opacity-80"
-         />
-       </div>
-     </div>
-
-     {/* Email */}
-     <div className="relative">
-       <label className="block text-white text-lg font-medium mb-2">
-         Email Address
-       </label>
-       <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
-         <input
-           type="email"
-           required
-           value={registerData.email}
-           onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
-           className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
-         />
-         <Image
-           src="/assets/at-line_icon.png"
-           alt="email"
-           className="w-6 h-6 ml-2 opacity-80"
-         />
-       </div>
-     </div>
-     {/** userid */}
-     <div className="relative">
-       <label className="block text-white text-lg font-medium mb-2">
-         UserId
-       </label>
-       <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
-         <input
-           type="userId"
-           required
-           value={registerData.userId}
-           onChange={(e) => setRegisterData({...registerData, userId: e.target.value})}
-           className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
-         />
-         <Image
-           src="/assets/at-line_icon.png"
-           alt="userId"
-           className="w-6 h-6 ml-2 opacity-80"
-         />
-       </div>
-     </div>
-
-     {/* Category */}
-     <div className="relative">
-       <label className="block text-white text-lg font-medium mb-2">
-         Category
-       </label>
-       <select
-         required
-         value={registerData.accountType}
-         onChange={(e) => setRegisterData({...registerData, accountType: e.target.value})}
-         className="w-full border-b-2 border-white bg-transparent focus:border-[#8e4eed] outline-none text-white font-medium text-lg py-2"
-       >
-         <option className="text-black" value="">
-  Select Category
-</option>
-<option className="text-black" value="Entrepreneur">
-  Entrepreneur
-</option>
-<option className="text-black" value="Businessman">
-  Businessman
-</option>
-<option className="text-black" value="Investor">
-  Investor
-</option>
-<option className="text-black" value="User">
-  User
-</option>
-
-       </select>
-     </div>
-
-     {/* Password */}
-     <div className="relative">
-       <label className="block text-white text-lg font-medium mb-2">
-         Password
-       </label>
-       <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
-         <input
-           type={showPassword ? "text" : "password"}
-           required
-           value={registerData.password}
-           onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
-           className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
-         />
-         <button
-           type="button"
-           onClick={() => setShowPassword(!showPassword)}
-           className="ml-2 text-white hover:text-[#AA7EF5]"
-         >
-           {showPassword ? (
-             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
-             </svg>
-           ) : (
-             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.708-4.362M9.88 9.88a3 3 0 104.24 4.24M6.1 6.1l11.8 11.8" />
-             </svg>
-           )}
-         </button>
-       </div>
-     </div>
-
-     {/* Button */}
-     <div className="mt-6">
-       <button
-         type="submit"
-         disabled={isLoading}
-         className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden text-white disabled:opacity-50 disabled:cursor-not-allowed"
-       >
-         <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683] z-[-1] transition-all duration-500 hover:top-0"></span>
-         {isLoading ? 'Creating Account...' : 'Sign Up'}
-       </button>
-     </div>
-
-    {/* Link */}
-    <div className="text-sm text-white text-center mt-5">
-      <p>
-        Already have an account?{" "}
-        <a
-          href="#"
-          onClick={() => setActiveForm("login")}
-          className="text-[#AA7EF5] font-semibold hover:underline"
-        >
-          Sign In
-        </a>
-      </p>
+ <form onSubmit={handleRegisterSubmit} className="mt-2 space-y-2">
+  {/* Error Message */}
+  {error && (
+    <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
+      {error}
     </div>
-  </form>
+  )}
+
+  {/* Full Name */}
+  <div className="relative">
+    <label className="block text-white text-lg font-medium mb-2">
+      Full Name
+    </label>
+    <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
+      <input
+        type="text"
+        required
+        value={registerData.fullName}
+        onChange={(e) =>
+          setRegisterData({ ...registerData, fullName: e.target.value })
+        }
+        className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
+      />
+      <Image
+        src="/assets/usernam_icon.png"
+        alt="fullname"
+        width={24}
+        height={24}
+        className="ml-2 opacity-80"
+      />
+    </div>
+  </div>
+
+  {/* Email */}
+  <div className="relative">
+    <label className="block text-white text-lg font-medium mb-2">
+      Email Address
+    </label>
+    <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
+      <input
+        type="email"
+        required
+        value={registerData.email}
+        onChange={(e) =>
+          setRegisterData({ ...registerData, email: e.target.value })
+        }
+        className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
+      />
+      <Image
+        src="/assets/at-line_icon.png"
+        alt="email"
+        width={24}
+        height={24}
+        className="ml-2 opacity-80"
+      />
+    </div>
+  </div>
+
+  {/* UserId */}
+  <div className="relative">
+    <label className="block text-white text-lg font-medium mb-2">
+      UserId
+    </label>
+    <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
+      <input
+        type="text"
+        required
+        value={registerData.userId}
+        onChange={(e) =>
+          setRegisterData({ ...registerData, userId: e.target.value })
+        }
+        className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
+      />
+      <Image
+        src="/assets/usernam_icon.png"
+        alt="username"
+        width={24}
+        height={24}
+        className="ml-2 opacity-80"
+      />
+    </div>
+  </div>
+
+  {/* Category */}
+  <div className="relative">
+    <select
+      required
+      value={registerData.accountType}
+      onChange={(e) =>
+        setRegisterData({ ...registerData, accountType: e.target.value })
+      }
+      className="w-full border-b-2 border-white bg-transparent focus:border-[#8e4eed] outline-none text-white font-medium text-lg py-2"
+    >
+      <option className="text-black" value="">
+        Select Category
+      </option>
+      <option className="text-black" value="Entrepreneur">
+        Entrepreneur
+      </option>
+      <option className="text-black" value="BusinessMan">
+        BusinessMan
+      </option>
+      <option className="text-black" value="Investor">
+        Investor
+      </option>
+      <option className="text-black" value="User">
+        User
+      </option>
+    </select>
+  </div>
+
+  {/* Password */}
+  <div className="relative">
+    <label className="block text-white text-lg font-medium mb-2">
+      Password
+    </label>
+    <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
+      <input
+        type={showPassword ? "text" : "password"}
+        required
+        value={registerData.password}
+        onChange={(e) =>
+          setRegisterData({ ...registerData, password: e.target.value })
+        }
+        className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="ml-2 text-white hover:text-[#AA7EF5]"
+      >
+        {showPassword ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
+            />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.708-4.362M9.88 9.88a3 3 0 104.24 4.24M6.1 6.1l11.8 11.8"
+            />
+          </svg>
+        )}
+      </button>
+    </div>
+  </div>
+
+  {/* Button */}
+  <div className="mt-6">
+    <button
+      type="submit"
+      disabled={isLoading}
+      className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden text-white disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683] z-[-1] transition-all duration-500 hover:top-0"></span>
+      {isLoading ? "Creating Account..." : "Sign Up"}
+    </button>
+  </div>
+
+  {/* Link */}
+  <div className="text-sm text-white text-center mt-5">
+    <p>
+      Already have an account?{" "}
+      <a
+        href="#"
+        onClick={() => setActiveForm("login")}
+        className="text-[#AA7EF5] font-semibold hover:underline"
+      >
+        Sign In
+      </a>
+    </p>
+  </div>
+</form>
 </div>
 
 
