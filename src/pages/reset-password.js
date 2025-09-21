@@ -93,7 +93,7 @@ const ResetPasswordPage = () => {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">Reset Password</h1>
             <p className="text-gray-300 text-sm">
-              Enter your new password below. Make sure it's secure and easy to remember.
+              Enter your new password below. Make sure it is secure and easy to remember.
             </p>
           </div>
 

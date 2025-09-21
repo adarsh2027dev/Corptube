@@ -3,7 +3,7 @@ import React from "react";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { loginSchema, signupSchema, forgotPasswordSchema } from "../lib/zodSchemas/userSchema";
-
+import Image from "next/image";
 const AuthPage = () => {
   const [activeForm, setActiveForm] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
@@ -187,7 +187,7 @@ console.log(loginData)
              placeholder="Enter your User ID"
              className="flex-1 bg-black outline-none text-white text-base"
            />
-           <img
+           <Image
              src="/assets/usernam_icon.png"
              alt="userid"
              className="w-[22px] h-[22px] ml-2 opacity-80"
@@ -215,13 +215,13 @@ console.log(loginData)
              className="ml-2 focus:outline-none"
            >
              {showPassword ? (
-               <img
+               <Image
                  src="/assets/lock_icon.png"
                  alt="show"
                  className="w-[22px] h-[22px] opacity-80"
                />
              ) : (
-               <img
+               <Image
                  src="/assets/lock_icon.png"
                  alt="hide"
                  className="w-[22px] h-[22px] opacity-80"
@@ -285,7 +285,7 @@ console.log(loginData)
       WELCOME <br /> 
       <span className="flex items-center gap-2">
         Back
-        <img
+        <Image
           src="/assets/corptube_logo-bgRemoved.png"
           alt="logo"
           className="w-10 h-10 inline-block opacity-80"
@@ -317,11 +317,11 @@ console.log(loginData)
     activeForm !== "register" ? "hidden" : "flex"
   }`}
 >
-  <h2 className="text-3xl lg:text-4xl font-bold text-center text-white">
+  <h2 className="text-3xl lg:text-3xl font-bold text-center text-white">
     Sign Up
   </h2>
 
-   <form onSubmit={handleRegisterSubmit} className="mt-6 space-y-6">
+   <form onSubmit={handleRegisterSubmit} className="mt- space-y-0">
      {/* Error Message */}
      {error && (
        <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
@@ -341,7 +341,7 @@ console.log(loginData)
            onChange={(e) => setRegisterData({...registerData, fullName: e.target.value})}
            className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
          />
-         <img
+         <Image
            src="/assets/usernam_icon.png"
            alt="fullname"
            className="w-6 h-6 ml-2 opacity-80"
@@ -362,7 +362,7 @@ console.log(loginData)
            onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
            className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
          />
-         <img
+         <Image
            src="/assets/at-line_icon.png"
            alt="email"
            className="w-6 h-6 ml-2 opacity-80"
@@ -382,7 +382,7 @@ console.log(loginData)
            onChange={(e) => setRegisterData({...registerData, userId: e.target.value})}
            className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
          />
-         <img
+         <Image
            src="/assets/at-line_icon.png"
            alt="userId"
            className="w-6 h-6 ml-2 opacity-80"
@@ -465,7 +465,7 @@ console.log(loginData)
      </div>
 
     {/* Link */}
-    <div className="text-sm text-center mt-5">
+    <div className="text-sm text-white text-center mt-5">
       <p>
         Already have an account?{" "}
         <a
