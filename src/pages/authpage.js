@@ -219,7 +219,7 @@ console.log(loginData)
              className="ml-2 focus:outline-none"
            >
              {showPassword ? (
-               <Img
+               <img
                  src="/assets/lock_icon.png"
                  alt="show"
                  className="w-[22px] h-[22px] opacity-80"
@@ -279,21 +279,26 @@ console.log(loginData)
   pb-[150px] lg:pb-[300px]
   `}
 >
-  <h2 className="uppercase text-3xl lg:text-[50px] leading-tight text-white font-bold">
-    {activeForm === "login" ? (
-      <>
-        WELCOME <br /> Back
-      </>
-    ) : (
-      <>WELCOME  <br></br>Back</>
-      
-    )}
-  </h2>
-   <img
-           src="/assets/at-line_icon.png"
-           alt="email"
-           className="w-6 h-6 ml-2 opacity-80"
-         />
+  <h2 className="uppercase text-3xl lg:text-[50px] leading-tight text-white font-bold flex items-center gap-2">
+  {activeForm === "login" ? (
+    <>
+      WELCOME <br /> Back
+    </>
+  ) : (
+    <>
+      WELCOME <br /> 
+      <span className="flex items-center gap-2">
+        Back
+        <img
+          src="/assets/corptube_logo-bgRemoved.png"
+          alt="logo"
+          className="w-10 h-10 inline-block opacity-80"
+        />
+      </span>
+    </>
+  )}
+</h2>
+
   <p
     className={`text-base lg:text-lg max-w-[240px] mt-4 text-white
     ${activeForm === "login" ? "ml-auto" : ""}`}
@@ -491,7 +496,7 @@ console.log(loginData)
     Forgot Password
   </h2>
   <p className="text-gray-300 text-center mt-2 text-sm sm:text-base">
-    Enter your email to receive an OTP and reset your password.
+    Enter your email to receive an Link and reset your password.
   </p>
 
    <form onSubmit={handleForgetSubmit} className="mt-8 space-y-6">
@@ -532,7 +537,7 @@ console.log(loginData)
          <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683]
                          z-[-1] transition-all duration-500 hover:top-0">
          </span>
-         {isLoading ? 'Sending...' : 'Send OTP'}
+         {isLoading ? 'Sending...' : 'Send  link '}
        </button>
      </div>
 
