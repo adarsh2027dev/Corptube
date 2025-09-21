@@ -145,9 +145,7 @@ console.log(loginData)
         className="absolute right-0 top-0 w-[1200px] h-[1200px] border-[3.5px] border-[#5827d4]"
         style={{
           background: "linear-gradient(45deg, #230a4a, #480e9f, #7c49c9)",
-          transform: activeForm === "register" || activeForm === "forget"
-            ? "rotate(0deg) skewY(0deg)"
-            : "rotate(10deg) skewY(40deg)",
+          transform:  "rotate(10deg) skewY(40deg)",
           transformOrigin: "bottom right",
           transition: "0.7s ease",
         }}
@@ -156,9 +154,7 @@ console.log(loginData)
       <div
         className="absolute left-[-280px] top-full w-[1200px] h-[1300px] border-t-[3.5px] bg-black"
         style={{
-          transform: activeForm === "register" || activeForm === "forget"
-            ? "rotate(-11deg) skewY(-41deg)"
-            : "rotate(0deg) skewY(0deg)",
+          transform:  "rotate(0deg) skewY(0deg)",
           transformOrigin: "bottom left",
           transition: "0.7s ease",
         }}
@@ -275,7 +271,7 @@ console.log(loginData)
 {/* login + other info section */}
 <div
   className={`absolute font-sans h-full hidden md:flex flex-col justify-center
-  ${activeForm === "login" ? "right-0 text-right pr-10 lg:pr-[65px] pl-10 lg:pl-[150px]" : "left-0 text-left pl-10 lg:pl-[65px] pr-10 lg:pr-[150px]"}
+  ${activeForm === "login" ? "right-0 text-right pr-10 lg:pr-[65px] pl-10 lg:pl-[150px]" : "right-0 text-left pl-10 lg:pl-[65px] pr-10 lg:pr-[150px]"}
   pb-[150px] lg:pb-[300px]
   `}
 >
@@ -317,7 +313,7 @@ console.log(loginData)
 
 {/* Register Form */}
 <div
-  className={`absolute font-sans top-0 right-0 w-full md:w-2/5 h-full flex flex-col justify-center px-6 md:px-12 lg:px-[60px] transition-all duration-500 ${
+  className={`absolute font-sans top-0 left-0 w-full md:w-2/5 h-full flex flex-col justify-center px-6 md:px-12 lg:px-[60px] transition-all duration-500 ${
     activeForm !== "register" ? "hidden" : "flex"
   }`}
 >
@@ -489,7 +485,7 @@ console.log(loginData)
       {/* ---------------- Forget Section ---------------- */}
     {/* Forgot Password Section */}
 <div
-  className={`absolute top-0 right-0 w-full md:w-1/2 h-full flex flex-col justify-center px-6 sm:px-10 lg:px-[40px]
+  className={`absolute top-0 left-0 w-full md:w-1/2 h-full flex flex-col justify-center px-6 sm:px-10 lg:px-[40px]
   ${activeForm !== "forget" ? "hidden" : ""}`}
 >
   <h2 className="text-white font-extrabold text-2xl sm:text-3xl lg:text-4xl text-center">
