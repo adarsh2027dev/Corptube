@@ -1,17 +1,15 @@
 import { z } from "zod";
 export const signupSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  firstName: z.string().min(1, "First name is required"), // Needed for userId generation
   email: z.string().email("Invalid email address"),
-  userId: z.string().min(3, "User ID is required").optional(), // optional for initial OTP
+  userId: z.string().min(3, "User ID is required").optional(), // optional initially
   password: z.string().min(6, "Password must be at least 6 characters"),
   accountType: z.preprocess(
-    (val) => typeof val === "string" ? val.trim() : val,
-    z.enum(["Entrepreneur", "Businessman", "User", "Investor"]).optional()
+    val => typeof val === "string" ? val.trim() : val,
+    z.enum(["Entrepreneur", "Businessman", "User", "Investor"])
   ),
-  code: z.string().optional(), // OTP code, optional on initial signup
+  code: z.string().optional(), // OTP
 });
-
 
 // Login schema - Using userid instead of email
 export const loginSchema = z.object({

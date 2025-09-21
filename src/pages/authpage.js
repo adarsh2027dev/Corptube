@@ -14,7 +14,7 @@ const AuthPage = () => {
   const [registerData, setRegisterData] = useState({
     fullName: "",
     email: "",
-    category: "",
+    accountType: "",
     userId:"",  
     password: ""
   });
@@ -61,39 +61,44 @@ console.log(loginData)
   };
 
   const handleRegisterSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
+  e.preventDefault();
+  setIsLoading(true);
+  setError("");
 
-    try {
-      // Validate form data with Zod
-      const validatedData = signupSchema.parse(registerData);
+  try {
+    // Validate form data with Zod
+    const validatedData = signupSchema.parse(registerData);
 
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(validatedData)
-      });
-      const result = await response.json();
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(validatedData)
+    });
 
-      if (result.success) {
-        // Redirect to OTP page
-        router.push('/otp');
-      } else {
-        setError(result.message || 'Registration failed');
-      }
-    } catch (error) {
-      if (error.errors) {
-        // Zod validation errors
-        setError(error.errors[0].message);
-      } else {
-        console.error('Registration error:', error);
-        setError('Registration failed. Please try again.');
-      }
-    } finally {
-      setIsLoading(false);
+    const result = await response.json();
+
+    if (result.success) {
+      // ✅ Store pending signup data in localStorage
+      localStorage.setItem("pendingSignup", JSON.stringify(registerData));
+
+      // Redirect to OTP page
+      router.push('/otp');
+    } else {
+      setError(result.message || 'Registration failed');
     }
-  };
+  } catch (error) {
+    if (error.errors) {
+      // Zod validation errors
+      setError(error.errors[0].message);
+    } else {
+      console.error('Registration error:', error);
+      setError('Registration failed. Please try again.');
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleForgetSubmit = async (e) => {
     e.preventDefault();
@@ -214,7 +219,7 @@ console.log(loginData)
              className="ml-2 focus:outline-none"
            >
              {showPassword ? (
-               <img
+               <Img
                  src="/assets/lock_icon.png"
                  alt="show"
                  className="w-[22px] h-[22px] opacity-80"
@@ -254,7 +259,7 @@ console.log(loginData)
           </button>
         </p>
         <p className="text-white gap-2">
-          Don&apos;t have an account?{" "}
+          Do not have an account?{" "}
           <button
             type="button"
             onClick={() => setActiveForm("register")}
@@ -391,8 +396,8 @@ console.log(loginData)
        </label>
        <select
          required
-         value={registerData.category}
-         onChange={(e) => setRegisterData({...registerData, category: e.target.value})}
+         value={registerData.accountType}
+         onChange={(e) => setRegisterData({...registerData, accountType: e.target.value})}
          className="w-full border-b-2 border-white bg-transparent focus:border-[#8e4eed] outline-none text-white font-medium text-lg py-2"
        >
          <option className="text-black" value="">

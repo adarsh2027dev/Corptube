@@ -11,11 +11,11 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
       success: false,
-      message: "Method Not Allowed"
+      message: "Method Not Allowed",
     });
   }
 
-  // Validate request body
+  // Validate input
   const parsed = signupSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({
@@ -30,76 +30,92 @@ export default async function handler(req, res) {
   try {
     // Step 1: Send OTP if code not provided
     if (!code) {
+      // Check if user already exists
       const existingUser = await users.findOne({ email });
       if (existingUser) {
         return res.status(409).json({
           success: false,
-          message: "User already exists with this email"
+          message: "User already exists with this email",
         });
       }
 
+      // Generate OTP
       const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
       // Delete existing OTP for this email
       await Otp.deleteMany({ email });
-await Otp.create({
-  email,
-  code: generatedOtp,
-  expiresAt: new Date(Date.now() + 10 * 60 * 1000),
-});
 
+      // Save OTP
+      await Otp.create({
+        email,
+        code: generatedOtp,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      });
+
+      // Send OTP email
       await sendOTPEmail(email, generatedOtp);
 
       return res.status(200).json({
         success: true,
-        message: "OTP sent to your email"
+        message: "OTP sent to your email",
       });
     }
 
-    // Step 2: Verify OTP
+    // Step 2: Verify OTP and create user
     const otpDoc = await Otp.findOne({ email, code });
     if (!otpDoc || otpDoc.expiresAt < new Date()) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or expired OTP"
+        message: "Invalid or expired OTP",
       });
     }
 
-    // Check if email or userId already exists
+    // Check if user already exists (double check)
     if (await users.findOne({ email })) {
       return res.status(409).json({ success: false, message: "Email already registered" });
-    }
-
-    if (!userId) {
-      return res.status(400).json({ success: false, message: "User ID is required" });
-    }
-
-    if (await users.findOne({ userId })) {
-      return res.status(409).json({ success: false, message: "User ID already taken" });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // // Generate userId based on accountType and firstName
+    // const count = await users.countDocuments({ accountType });
+    // const nextNumber = (count + 1).toString().padStart(3, "0");
+
+    // let userId;
+    // switch (accountType) {
+    //   case "Businessman":
+    //     userId = `Businessman-${firstName}-${nextNumber}`;
+    //     break;
+    //   case "Entrepreneur":
+    //     userId = `Entrepreneur-${firstName}-${nextNumber}`;
+    //     break;
+    //   case "Investor":
+    //     userId = `Investor-${firstName}-${nextNumber}`;
+    //     break;
+    //   default:
+    //     userId = `User-${firstName}-${nextNumber}`;
+    // }
+
     // Create the user
     const newUser = await users.create({
       fullName,
-      userId,
+      
       email,
       password: hashedPassword,
-      accountType: accountType || "User",
+      accountType,
+      userId,
     });
 
     // Delete OTP after successful signup
-    await Otp.deleteOne({ email, code });
+    await Otp.deleteMany({ email });
 
     return res.status(201).json({
       success: true,
-      message: "User created successfully",
+      message: "Account created successfully",
       data: {
-        id: newUser._id,
-        fullName: newUser.fullName,
         userId: newUser.userId,
+        fullName: newUser.fullName,
         email: newUser.email,
         accountType: newUser.accountType,
       },
@@ -109,7 +125,7 @@ await Otp.create({
     console.error("Error in signup flow:", error);
     return res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Server error",
     });
   }
 }
