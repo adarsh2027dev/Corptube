@@ -23,18 +23,20 @@ export default async function handler(req, res) {
     });
   }
 
-  const { email, password } = parsed.data;
+  const { userId  , password } = parsed.data;
 
   try {
-    const user = await users.findOne({ email });
+    const user = await users.findOne({ userId });
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found"
       });
     }
-
+ 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log(password);
+    console.log(user.password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -47,7 +49,7 @@ export default async function handler(req, res) {
       id: user._id,
       email: user.email,
       fullName: user.fullName,
-      mobile: user.mobile,
+     
       accountType: user.accountType,
       profilePhoto: user.profilePhoto,
     }), {
@@ -66,7 +68,7 @@ export default async function handler(req, res) {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
-        mobile: user.mobile,
+      
         accountType: user.accountType,
         profilePhoto: user.profilePhoto,
       }

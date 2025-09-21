@@ -1,9 +1,134 @@
 // components/authpage.js
 import React from "react";
 import { useState } from "react";
+import { useRouter } from "next/router";
+import { loginSchema, signupSchema, forgotPasswordSchema } from "../lib/zodSchemas/userSchema";
+
 const AuthPage = () => {
   const [activeForm, setActiveForm] = useState("login");
- const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
+  // Form data states
+  const [loginData, setLoginData] = useState({ userId: "", password: "" });
+  const [registerData, setRegisterData] = useState({
+    fullName: "",
+    email: "",
+    category: "",
+    userId:"",  
+    password: ""
+  });
+  const [forgetData, setForgetData] = useState({ email: "" });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Form handlers
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+console.log(loginData)
+    try {
+      // Validate form data with Zod
+      const validatedData = loginSchema.parse(loginData);
+
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validatedData)
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        // Store token and user data
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('user', JSON.stringify(result.user));
+        router.push('/dashboard');
+      } else {
+        setError(result.message || 'Login failed');
+      }
+    } catch (error) {
+      if (error.errors) {
+        // Zod validation errors
+        setError(error.errors[0].message);
+      } else {
+        console.error('Login error:', error);
+        setError('Login failed. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // Validate form data with Zod
+      const validatedData = signupSchema.parse(registerData);
+
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validatedData)
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        // Redirect to OTP page
+        router.push('/otp');
+      } else {
+        setError(result.message || 'Registration failed');
+      }
+    } catch (error) {
+      if (error.errors) {
+        // Zod validation errors
+        setError(error.errors[0].message);
+      } else {
+        console.error('Registration error:', error);
+        setError('Registration failed. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgetSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // Validate form data with Zod
+      const validatedData = forgotPasswordSchema.parse(forgetData);
+
+      const response = await fetch('/api/auth/resetpasstoken', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validatedData)
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Password reset link sent to your email!');
+        setActiveForm("login");
+      } else {
+        setError(result.message || 'Failed to send reset link');
+      }
+    } catch (error) {
+      if (error.errors) {
+        // Zod validation errors
+        setError(error.errors[0].message);
+      } else {
+        console.error('Password reset error:', error);
+        setError('Failed to send reset link. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div
       className={`relative w-screen h-screen shadow-md bg-black overflow-hidden flex justify-center items-center
@@ -39,71 +164,83 @@ const AuthPage = () => {
 >
   <h2 className="text-white font-extrabold text-3xl sm:text-4xl text-center">Login</h2>
 
-<form className="mt-8 space-y-6">
-      {/* username */}
-      <div className="w-full">
-        <label className="block text-white text-md font-bold mb-2">
-          Username
-        </label>
-        <div className="flex items-center border-b-2 border-white/40 px-3 py-2 ">
-          <input
-            type="text"
-            required
-            placeholder="Enter your username"
-            className="flex-1 bg-black outline-none text-white text-base"
-          />
-          <img
-            src="/assets/usernam_icon.png"
-            alt="username"
-            className="w-[22px] h-[22px] ml-2 opacity-80"
-          />
-        </div>
-      </div>
+ <form onSubmit={handleLoginSubmit} className="mt-8 space-y-6">
+       {/* Error Message */}
+       {error && (
+         <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
+           {error}
+         </div>
+       )}
 
-      {/* password */}
-      <div className="w-full">
-        <label className="block text-white text-md font-bold mb-2">
-          Password
-        </label>
-        <div className="flex items-center border-b-2 border-white/40 px-3 py-2 focus-within:border-[#8e4eed] transition">
-          <input
-            type={showPassword ? "text" : "password"}
-            required
-            placeholder="Enter your password"
-            className="flex-1 bg-black  font-sans outline-none text-white placeholder-gray-400 text-base"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="ml-2 focus:outline-none"
-          >
-            {showPassword ? (
-              <img
-                src="/assets/lock_icon.png"
-                alt="show"
-                className="w-[22px] h-[22px] opacity-80"
-              />
-            ) : (
-              <img
-                src="/assets/lock_icon.png"
-                alt="hide"
-                className="w-[22px] h-[22px] opacity-80"
-              />
-            )}
-          </button>
-        </div>
-      </div>
+       {/* userid */}
+       <div className="w-full">
+         <label className="block text-white text-md font-bold mb-2">
+           User ID
+         </label>
+         <div className="flex items-center border-b-2 border-white/40 px-3 py-2 focus-within:border-[#8e4eed] transition">
+           <input
+             type="text"
+             required
+             value={loginData.userId}
+             onChange={(e) => setLoginData({...loginData, userId: e.target.value})}
+             placeholder="Enter your User ID"
+             className="flex-1 bg-black outline-none text-white text-base"
+           />
+           <img
+             src="/assets/usernam_icon.png"
+             alt="userid"
+             className="w-[22px] h-[22px] ml-2 opacity-80"
+           />
+         </div>
+       </div>
 
-      {/* button */}
-      <div>
-        <button
-          type="submit"
-          className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden z-10 text-white"
-        >
-          <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683] z-[-1] transition-all duration-500 hover:top-0"></span>
-          Login
-        </button>
-      </div>
+       {/* password */}
+       <div className="w-full">
+         <label className="block text-white text-md font-bold mb-2">
+           Password
+         </label>
+         <div className="flex items-center border-b-2 border-white/40 px-3 py-2 focus-within:border-[#8e4eed] transition">
+           <input
+             type={showPassword ? "text" : "password"}
+             required
+             value={loginData.password}
+             onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+             placeholder="Enter your password"
+             className="flex-1 bg-black font-sans outline-none text-white placeholder-gray-400 text-base"
+           />
+           <button
+             type="button"
+             onClick={() => setShowPassword(!showPassword)}
+             className="ml-2 focus:outline-none"
+           >
+             {showPassword ? (
+               <img
+                 src="/assets/lock_icon.png"
+                 alt="show"
+                 className="w-[22px] h-[22px] opacity-80"
+               />
+             ) : (
+               <img
+                 src="/assets/lock_icon.png"
+                 alt="hide"
+                 className="w-[22px] h-[22px] opacity-80"
+               />
+             )}
+           </button>
+         </div>
+       </div>
+
+       {/* button */}
+       <div>
+         <button
+           type="submit"
+           disabled={isLoading}
+           className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden z-10 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+         >
+           <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683] z-[-1] transition-all duration-500 hover:top-0"></span>
+           {isLoading ? 'Logging in...' : 'Login'}
+         </button>
+       </div>
 
       {/* links */}
       <div className="text-sm flex flex-col items-center text-center space-y-2">
@@ -132,8 +269,8 @@ const AuthPage = () => {
 
 {/* login + other info section */}
 <div
-  className={`absolute font-sans h-full hidden md:flex flex-col justify-center 
-  ${activeForm === "login" ? "right-0 text-right pr-10 lg:pr-[65px] pl-10 lg:pl-[150px]" : "left-0 text-left pl-10 lg:pl-[65px] pr-10 lg:pr-[150px]"} 
+  className={`absolute font-sans h-full hidden md:flex flex-col justify-center
+  ${activeForm === "login" ? "right-0 text-right pr-10 lg:pr-[65px] pl-10 lg:pl-[150px]" : "left-0 text-left pl-10 lg:pl-[65px] pr-10 lg:pr-[150px]"}
   pb-[150px] lg:pb-[300px]
   `}
 >
@@ -143,12 +280,17 @@ const AuthPage = () => {
         WELCOME <br /> Back
       </>
     ) : (
-      <>WELCOME  <br></br>Back</> 
+      <>WELCOME  <br></br>Back</>
+      
     )}
   </h2>
-
+   <img
+           src="/assets/at-line_icon.png"
+           alt="email"
+           className="w-6 h-6 ml-2 opacity-80"
+         />
   <p
-    className={`text-base lg:text-lg max-w-[240px] mt-4 text-white 
+    className={`text-base lg:text-lg max-w-[240px] mt-4 text-white
     ${activeForm === "login" ? "ml-auto" : ""}`}
   >
     {activeForm === "login" ? (
@@ -173,115 +315,148 @@ const AuthPage = () => {
     Sign Up
   </h2>
 
-  <form
-    className="mt-6 space-y-6"
-    onSubmit={(e) => {
-      e.preventDefault();
-      setActiveForm("otp"); // ✅ Go to OTP page
-    }}
-  >
-    {/* Full Name */}
-    <div className="relative">
-      <label className="block text-white text-lg font-medium mb-2">
-        Full Name
-      </label>
-      <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
-        <input
-          type="text"
-          required
-          className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
-        />
-        <img
-          src="/assets/usernam_icon.png"
-          alt="fullname"
-          className="w-6 h-6 ml-2 opacity-80"
-        />
-      </div>
-    </div>
+   <form onSubmit={handleRegisterSubmit} className="mt-6 space-y-6">
+     {/* Error Message */}
+     {error && (
+       <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
+         {error}
+       </div>
+     )}
+     {/* Full Name */}
+     <div className="relative">
+       <label className="block text-white text-lg font-medium mb-2">
+         Full Name
+       </label>
+       <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
+         <input
+           type="text"
+           required
+           value={registerData.fullName}
+           onChange={(e) => setRegisterData({...registerData, fullName: e.target.value})}
+           className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
+         />
+         <img
+           src="/assets/usernam_icon.png"
+           alt="fullname"
+           className="w-6 h-6 ml-2 opacity-80"
+         />
+       </div>
+     </div>
 
-    {/* Username */}
-    <div className="relative">
-      <label className="block text-white text-lg font-medium mb-2">
-        Username 
-      </label>
-      <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
-        <input
-          type="email"
-          required
-          className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
-        />
-        <img
-          src="/assets/at-line_icon.png"
-          alt="username"
-          className="w-6 h-6 ml-2 opacity-80"
-        />
-      </div>
-    </div>
+     {/* Email */}
+     <div className="relative">
+       <label className="block text-white text-lg font-medium mb-2">
+         Email Address
+       </label>
+       <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
+         <input
+           type="email"
+           required
+           value={registerData.email}
+           onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
+           className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
+         />
+         <img
+           src="/assets/at-line_icon.png"
+           alt="email"
+           className="w-6 h-6 ml-2 opacity-80"
+         />
+       </div>
+     </div>
+     {/** userid */}
+     <div className="relative">
+       <label className="block text-white text-lg font-medium mb-2">
+         UserId
+       </label>
+       <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
+         <input
+           type="userId"
+           required
+           value={registerData.userId}
+           onChange={(e) => setRegisterData({...registerData, userId: e.target.value})}
+           className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
+         />
+         <img
+           src="/assets/at-line_icon.png"
+           alt="userId"
+           className="w-6 h-6 ml-2 opacity-80"
+         />
+       </div>
+     </div>
 
-    {/* Category */}
-    <div className="relative">
-      <label className="block text-white text-lg font-medium mb-2">
-        Category
-      </label>
-      <select
-        required
-        className="w-full border-b-2 border-white bg-transparent focus:border-[#8e4eed] outline-none text-white font-medium text-lg py-2"
-      >
-        <option className="text-black" value="">
-          Select Category
-        </option>
-        <option className="text-black" value="entrepreneur">
-          Entrepreneur
-        </option>
-        <option className="text-black" value="businessman">
-          Businessman
-        </option>
-        <option className="text-black" value="user">
-          User
-        </option>
-      </select>
-    </div>
+     {/* Category */}
+     <div className="relative">
+       <label className="block text-white text-lg font-medium mb-2">
+         Category
+       </label>
+       <select
+         required
+         value={registerData.category}
+         onChange={(e) => setRegisterData({...registerData, category: e.target.value})}
+         className="w-full border-b-2 border-white bg-transparent focus:border-[#8e4eed] outline-none text-white font-medium text-lg py-2"
+       >
+         <option className="text-black" value="">
+  Select Category
+</option>
+<option className="text-black" value="Entrepreneur">
+  Entrepreneur
+</option>
+<option className="text-black" value="Businessman">
+  Businessman
+</option>
+<option className="text-black" value="Investor">
+  Investor
+</option>
+<option className="text-black" value="User">
+  User
+</option>
 
-    {/* Password */}
-    <div className="relative">
-      <label className="block text-white text-lg font-medium mb-2">
-        Password
-      </label>
-      <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
-        <input
-          type={showPassword ? "text" : "password"}
-          required
-          className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
-        />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="ml-2 text-white hover:text-[#AA7EF5]"
-        >
-          {showPassword ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.708-4.362M9.88 9.88a3 3 0 104.24 4.24M6.1 6.1l11.8 11.8" />
-            </svg>
-          )}
-        </button>
-      </div>
-    </div>
+       </select>
+     </div>
 
-    {/* Button */}
-    <div className="mt-6">
-      <button
-        type="submit"
-        className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden text-white"
-      >
-        <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683] z-[-1] transition-all duration-500 hover:top-0"></span>
-        Sign Up
-      </button>
-    </div>
+     {/* Password */}
+     <div className="relative">
+       <label className="block text-white text-lg font-medium mb-2">
+         Password
+       </label>
+       <div className="flex items-center border-b-2 border-white focus-within:border-[#8e4eed]">
+         <input
+           type={showPassword ? "text" : "password"}
+           required
+           value={registerData.password}
+           onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
+           className="flex-1 bg-transparent outline-none text-white font-medium text-lg py-2"
+         />
+         <button
+           type="button"
+           onClick={() => setShowPassword(!showPassword)}
+           className="ml-2 text-white hover:text-[#AA7EF5]"
+         >
+           {showPassword ? (
+             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+             </svg>
+           ) : (
+             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.708-4.362M9.88 9.88a3 3 0 104.24 4.24M6.1 6.1l11.8 11.8" />
+             </svg>
+           )}
+         </button>
+       </div>
+     </div>
+
+     {/* Button */}
+     <div className="mt-6">
+       <button
+         type="submit"
+         disabled={isLoading}
+         className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden text-white disabled:opacity-50 disabled:cursor-not-allowed"
+       >
+         <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683] z-[-1] transition-all duration-500 hover:top-0"></span>
+         {isLoading ? 'Creating Account...' : 'Sign Up'}
+       </button>
+     </div>
 
     {/* Link */}
     <div className="text-sm text-center mt-5">
@@ -304,7 +479,7 @@ const AuthPage = () => {
       {/* ---------------- Forget Section ---------------- */}
     {/* Forgot Password Section */}
 <div
-  className={`absolute top-0 right-0 w-full md:w-1/2 h-full flex flex-col justify-center px-6 sm:px-10 lg:px-[40px] 
+  className={`absolute top-0 right-0 w-full md:w-1/2 h-full flex flex-col justify-center px-6 sm:px-10 lg:px-[40px]
   ${activeForm !== "forget" ? "hidden" : ""}`}
 >
   <h2 className="text-white font-extrabold text-2xl sm:text-3xl lg:text-4xl text-center">
@@ -314,37 +489,47 @@ const AuthPage = () => {
     Enter your email to receive an OTP and reset your password.
   </p>
 
-  <form className="mt-8 space-y-6">
-    {/* email input */}
-    <div className="relative w-full">
-      <input
-        type="email"
-        required
-        className="peer w-full px-3 pt-5 pb-2 bg-transparent border-2 border-white/40 rounded-lg text-white placeholder-transparent 
-                   focus:border-[#8e4eed] focus:ring-2 focus:ring-[#8e4eed]/50 outline-none transition"
-        placeholder="Enter your email"
-      />
-      <label
-        className="absolute left-3 top-2 text-gray-300 text-sm transition-all peer-placeholder-shown:top-4 
-                   peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 
-                   peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#AA7EF5]"
-      >
-        Email Address
-      </label>
-    </div>
+   <form onSubmit={handleForgetSubmit} className="mt-8 space-y-6">
+     {/* Error Message */}
+     {error && (
+       <div className="text-red-400 text-sm text-center bg-red-400/10 border border-red-400/20 rounded-lg p-3">
+         {error}
+       </div>
+     )}
 
-    {/* button */}
-    <div>
-      <button
-        type="submit"
-        className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden text-white"
-      >
-        <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683]
-                        z-[-1] transition-all duration-500 hover:top-0">
-        </span>
-        Send OTP
-      </button>
-    </div>
+     {/* email input */}
+     <div className="relative w-full">
+       <input
+         type="email"
+         required
+         value={forgetData.email}
+         onChange={(e) => setForgetData({...forgetData, email: e.target.value})}
+         className="peer w-full px-3 pt-5 pb-2 bg-transparent border-2 border-white/40 rounded-lg text-white placeholder-transparent
+                    focus:border-[#8e4eed] focus:ring-2 focus:ring-[#8e4eed]/50 outline-none transition"
+         placeholder="Enter your email"
+       />
+       <label
+         className="absolute left-3 top-2 text-gray-300 text-sm transition-all peer-placeholder-shown:top-4
+                    peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400
+                    peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#AA7EF5]"
+       >
+         Email Address
+       </label>
+     </div>
+
+     {/* button */}
+     <div>
+       <button
+         type="submit"
+         disabled={isLoading}
+         className="relative w-full h-[45px] rounded-full border-2 border-[#401683] font-semibold overflow-hidden text-white disabled:opacity-50 disabled:cursor-not-allowed"
+       >
+         <span className="absolute -top-full left-0 w-full h-[300%] bg-gradient-to-b from-[#7127E9] via-[#6B37BF] to-[#401683]
+                         z-[-1] transition-all duration-500 hover:top-0">
+         </span>
+         {isLoading ? 'Sending...' : 'Send OTP'}
+       </button>
+     </div>
 
     {/* back to login */}
     <div className="text-sm text-center mt-5">
@@ -360,7 +545,7 @@ const AuthPage = () => {
 </div>
 
 
-    
+
     </div>
   );
 

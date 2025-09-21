@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    mobile: { type: String, required: true },
+    userId: { type: String, required: true, unique: true }, // make sure it's unique
     password: { type: String, required: true },
     accountType: {
       type: String,
@@ -21,11 +21,5 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash password before saving
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
-});
 
 export default mongoose.models.User || mongoose.model("User", userSchema);
