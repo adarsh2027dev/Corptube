@@ -318,7 +318,7 @@ console.log(loginData)
 
   <p
     className={`text-base lg:text-lg max-w-[240px] mt-4 text-white
-    ${activeForm === "login" ? "ml-auto" : ""}`}
+    ${activeForm === "login" ? "" : ""}`}
   >
     {activeForm === "login" ? (
       <>
