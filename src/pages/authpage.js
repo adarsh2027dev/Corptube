@@ -442,7 +442,7 @@ console.log(loginData)
         Entrepreneur
       </option>
       <option className="text-black" value="BusinessMan">
-        BusinessMan
+        Businessman
       </option>
       <option className="text-black" value="Investor">
         Investor

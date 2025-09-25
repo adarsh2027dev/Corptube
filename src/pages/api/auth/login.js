@@ -35,8 +35,8 @@ export default async function handler(req, res) {
     }
  
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log(password);
-    console.log(user.password);
+    // console.log(password);
+    // console.log(user.password);
     if (!isMatch) {
       return res.status(401).json({
         success: false,

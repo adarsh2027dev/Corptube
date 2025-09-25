@@ -23,18 +23,27 @@ export const otpSchema = z.object({
 });
 
 // Password reset schema
-export const resetPasswordSchema = z.object({
-  newPassword: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(6, "Password must be at least 6 characters long"),
+    confirmPassword: z
+      .string()
+      .min(6, "Password must be at least 6 characters long"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match", // friendlier wording
+    path: ["confirmPassword"], // show error under confirmPassword input
+  });
 
-// Forgot password schema
+
+//forgate password schema
+
 export const forgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
+
 
 // Update user schema (all fields optional, no mobile)
 export const updateUserSchema = z.object({
