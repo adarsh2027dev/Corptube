@@ -1,3 +1,4 @@
+// /api/auth/verify-otp.js
 import dbConnect from '../../../lib/dbConnect';
 import bcrypt from 'bcryptjs';
 import Otp from '../../../models/Otp';
@@ -7,70 +8,81 @@ import { signupSchema } from '../../../lib/zodSchemas/userSchema';
 export default async function handler(req, res) {
   await dbConnect();
 
-  if (req.method === "POST") {
-    const { otp, ...pendingSignup } = req.body;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, message: 'Method not allowed' });
+  }
 
-    if (!otp) {
-      return res.status(400).json({ message: "OTP is required" });
+  const parsed = signupSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ success: false, message: 'Validation error', error: parsed.error.flatten() });
+  }
+
+  const { email, otp, fullName, password, accountType, firstName } = parsed.data;
+
+  if (!otp) {
+    return res.status(400).json({ success: false, message: "OTP is required" });
+  }
+
+  try {
+    // Find OTP
+    const otpDoc = await Otp.findOne({ email, code: otp });
+    if (!otpDoc || otpDoc.expiresAt < new Date()) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
     }
 
-    // Validate request body against schema
-    const parsed = signupSchema.safeParse(pendingSignup);
-    if (!parsed.success) {
-      return res.status(400).json({
-        message: "Validation error",
-        error: parsed.error,
-      });
-    }
-
-    const { email, password, accountType, firstName } = parsed.data;
-
-    // Check OTP validity
-    const validOtp = await Otp.findOne({ email, otp: otp.toString() });
-    if (!validOtp || validOtp.expiresAt < Date.now()) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+    // Check if email already exists
+    if (await users.findOne({ email })) {
+      return res.status(409).json({ success: false, message: 'Email already registered' });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate custom userId
+    // Generate userId
+    const count = await users.countDocuments({ accountType });
+    const nextNumber = (count + 1).toString().padStart(3, '0');
+
     let userId;
-    if (accountType === "BusinessMan") {
-      const count = await users.countDocuments({ accountType: "BusinessMan" });
-      const nextNumber = (count + 1).toString().padStart(3, '0');
-      userId = `BusinessMan-${firstName}-${nextNumber}`;
-    } else if (accountType === "Enterprenuer") {
-      const count = await users.countDocuments({ accountType: "Enterprenuer" });
-      const nextNumber = (count + 1).toString().padStart(3, '0');
-      userId = `Enterprenuer-${firstName}-${nextNumber}`;
-    } else {
-      const count = await users.countDocuments({ accountType: "User" });
-      const nextNumber = (count + 1).toString().padStart(6, '0');
-      userId = `user-${firstName}-${nextNumber}`;
+    switch (accountType) {
+      case 'Businessman':
+        userId = `Businessman-${firstName}-${nextNumber}`;
+        break;
+      case 'Entrepreneur':
+        userId = `Entrepreneur-${firstName}-${nextNumber}`;
+        break;
+      case 'Investor':
+        userId = `Investor-${firstName}-${nextNumber}`;
+        break;
+      default:
+        userId = `User-${firstName}-${nextNumber}`;
     }
 
-    // Save user in DB
-    const userdata = await users.create({
-      ...parsed.data,
+    // Create user
+    const newUser = await users.create({
+      fullName,
+      firstName,
+      email,
       password: hashedPassword,
+      accountType,
       userId,
     });
 
-    // Remove OTP after success
+    // Delete OTP after success
     await Otp.deleteMany({ email });
 
-    return res.status(200).json({
-      message: "Account created successfully",
+    return res.status(201).json({
+      success: true,
+      message: 'Account created successfully',
       data: {
-        userId: userdata.userId,
-        email: userdata.email,
-        firstName: userdata.firstName,
-        lastName: userdata.lastName,
-        accountType: userdata.accountType,
+        userId: newUser.userId,
+        email: newUser.email,
+        fullName: newUser.fullName,
+        accountType: newUser.accountType,
       },
     });
-  }
 
-  return res.status(405).end("Method Not Allowed");
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
 }

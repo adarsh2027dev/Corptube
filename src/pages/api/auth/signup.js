@@ -4,134 +4,128 @@ import Otp from "../../../models/Otp";
 import { sendOTPEmail } from "../../../lib/nodemailer";
 import { signupSchema } from "../../../lib/zodSchemas/userSchema";
 import bcrypt from "bcryptjs";
+
 export default async function handler(req, res) {
   await dbConnect();
 
-  if (req.method === "POST") {
-    const parsed = signupSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation error",
-        error: parsed.error.flatten(),
-      });
-    }
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      success: false,
+      message: "Method Not Allowed",
+    });
+  }
 
-    const { fullName, userId, email, mobile, password, accountType, code } = parsed.data;
+  // Validate input
+  const parsed = signupSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      success: false,
+      message: "Validation error",
+      error: parsed.error.flatten(),
+    });
+  }
 
-    try {
-      // Step 1: If no code → send OTP
-      if (!code) {
-        const existingUser = await users.findOne({ email });
-        if (existingUser) {
-          return res.status(409).json({
-            success: false,
-            message: "User already exists with this email"
-          });
-        }
+  const { fullName, userId, email, password, accountType, code } = parsed.data;
 
-        // Generate 6-digit OTP
-        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Delete any existing OTP for this email
-        await Otp.deleteMany({ email });
-
-        // Create new OTP
-        await Otp.create({
-          email,
-          code: otpCode,
-          expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-        });
-
-        await sendOTPEmail(email, otpCode);
-        return res.status(200).json({
-          success: true,
-          message: "OTP sent to your email"
-        });
-      }
-
-      // Step 2: If code → verify OTP
-      const otpDoc = await Otp.findOne({ email, code });
-      if (!otpDoc || otpDoc.expiresAt < new Date()) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid or expired OTP"
-        });
-      }
-
-      // Double check email existence
+  try {
+    // Step 1: Send OTP if code not provided
+    if (!code) {
+      // Check if user already exists
       const existingUser = await users.findOne({ email });
       if (existingUser) {
         return res.status(409).json({
           success: false,
-          message: "User already exists with this email"
+          message: "User already exists with this email",
         });
       }
 
-      // ✅ Handle userId (check or generate)
-      let finalUserId = userId;
-      if (finalUserId) {
-        const existingId = await users.findOne({ userId: finalUserId });
-        if (existingId) {
-          return res.status(409).json({
-            success: false,
-            message: "User ID already taken, choose another"
-          });
-        }
-      } else {
-        // Auto-generate from name
-        let baseId = fullName.toLowerCase().replace(/\s+/g, "");
-        let tempId = baseId;
-        let counter = 1;
+      // Generate OTP
+      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Ensure uniqueness
-        while (await users.findOne({ userId: tempId })) {
-          tempId = `${baseId}${counter++}`;
-        }
-        finalUserId = tempId;
-      }
+      // Delete existing OTP for this email
+      await Otp.deleteMany({ email });
 
-      
-// Hash password before saving
-const hashedPassword = await bcrypt.hash(password, 10);
-
-
-      // ✅ Create user (password hashed by pre-save middleware in model)
-      const newUser = await users.create({
-        fullName,
-        userId: finalUserId,
+      // Save OTP
+      await Otp.create({
         email,
-        mobile,
-        password:hashedPassword,
-        accountType: accountType || "User",
+        code: generatedOtp,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
       });
 
-      // Delete OTP after successful signup
-      await Otp.deleteOne({ email, code });
+      // Send OTP email
+      await sendOTPEmail(email, generatedOtp);
 
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
-        message: "User created successfully",
-        data: {
-          id: newUser._id,
-          fullName: newUser.fullName,
-          userId: newUser.userId,
-          email: newUser.email,
-          mobile: newUser.mobile,
-          accountType: newUser.accountType,
-        },
-      });
-    } catch (error) {
-      console.error("Error in signup flow:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Server error"
+        message: "OTP sent to your email",
       });
     }
-  }
 
-  return res.status(405).json({
-    success: false,
-    message: "Method Not Allowed"
-  });
+    // Step 2: Verify OTP and create user
+    const otpDoc = await Otp.findOne({ email, code });
+    if (!otpDoc || otpDoc.expiresAt < new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
+    }
+
+    // Check if user already exists (double check)
+    if (await users.findOne({ email })) {
+      return res.status(409).json({ success: false, message: "Email already registered" });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // // Generate userId based on accountType and firstName
+    // const count = await users.countDocuments({ accountType });
+    // const nextNumber = (count + 1).toString().padStart(3, "0");
+
+    // let userId;
+    // switch (accountType) {
+    //   case "Businessman":
+    //     userId = `Businessman-${firstName}-${nextNumber}`;
+    //     break;
+    //   case "Entrepreneur":
+    //     userId = `Entrepreneur-${firstName}-${nextNumber}`;
+    //     break;
+    //   case "Investor":
+    //     userId = `Investor-${firstName}-${nextNumber}`;
+    //     break;
+    //   default:
+    //     userId = `User-${firstName}-${nextNumber}`;
+    // }
+
+    // Create the user
+    const newUser = await users.create({
+      fullName,
+      
+      email,
+      password: hashedPassword,
+      accountType,
+      userId,
+    });
+
+    // Delete OTP after successful signup
+    await Otp.deleteMany({ email });
+
+    return res.status(201).json({
+      success: true,
+      message: "Account created successfully",
+      data: {
+        userId: newUser.userId,
+        fullName: newUser.fullName,
+        email: newUser.email,
+        accountType: newUser.accountType,
+      },
+    });
+
+  } catch (error) {
+    console.error("Error in signup flow:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
 }
